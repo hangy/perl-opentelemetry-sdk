@@ -10,6 +10,7 @@ use OpenTelemetry::SDK::Trace::Sampler::Result;
 class OpenTelemetry::SDK::Trace::Sampler::TraceIDRatioBased
     :does(OpenTelemetry::SDK::Trace::Sampler)
 {
+    use Math::BigFloat;
     use OpenTelemetry;
     use Scalar::Util 'looks_like_number';
 
@@ -50,10 +51,9 @@ class OpenTelemetry::SDK::Trace::Sampler::TraceIDRatioBased
         # can be compared directly with the one derived from the Trace ID,
         # in the range from 0 (never sample) to 2**64 (always sample)
         $threshold = do {
-            use bigfloat;
             # Since Math::BigFloat 1.999840 onwards, the shift operators are
             # exclusively integer-based, so we enforce precedent here
-            ( $ratio * ( 1 << 64 ) )->bceil;
+            Math::BigFloat->new( $ratio * ( 1 << 64 ) )->bceil;
         };
     }
 
